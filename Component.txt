@@ -1,0 +1,35 @@
+| Component                                             | Status            | Notes                                                                                                                                                                                  |
+| ----------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pubspec.yaml`                                        | ✅ Done            | Updated with modern dependencies (http, provider, charts_flutter, shared_preferences, flutter_dotenv)                                                                                  |
+| `HealthQuestionnaire`                                 | 🛠 Partially done | We discussed where to put it (`screens/health/health_questionnaire.dart`) but haven’t fully converted it yet to Flutter UI with forms, radio buttons, number inputs, and progress bar. |
+| `Layout.js` → `app_layout.dart`                       | ✅ Done            | Full Flutter equivalent created with AppBar, Drawer, floating action button, HealthNewsTicker, and ChatbotPopup support.                                                               |
+| Entities (`User`, `Conversation`, `HealthAssessment`) | 🛠 Planned        | We need to create corresponding Dart models (`models/user.dart`, `models/conversation.dart`, `models/health_assessment.dart`).                                                         |
+| Routing                                               | ❌ Not yet done    | `main.dart` and named routes for pages like Home, HealthTopics, UserProfile, ExerciseDiet, HealthQuestionnaire.                                                                        |
+| State Management                                      | ✅ Partially       | Provider is included for user state; other states (assessment answers, chatbot, etc.) still need provider/notifier setup.                                                              |
+| Widgets                                               | ❌ Not yet done    | HealthNewsTicker, ChatbotPopup, and reusable UI components need Flutter implementations.                                                                                               |
+| API calls / Backend integration                       | ❌ Not yet done    | `User.me()`, `User.loginWithRedirect()`, `User.logout()`, and other API calls need Dart service classes.                                                                               |
+| Charts & Pie Charts                                   | ❌ Not yet done    | We added `charts_flutter` dependency but haven’t implemented chart screens yet.                                                                                                        |
+medintel_backend/
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py             # FastAPI app initialization
+│   ├── models/             # Pydantic models (schemas)
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── health_assessment.py
+│   │   └── conversation.py
+│   ├── routes/             # API routes
+│   │   ├── __init__.py
+│   │   ├── users.py
+│   │   ├── assessments.py
+│   │   └── conversations.py
+│   ├── services/           # Business logic / helper functions
+│   │   ├── __init__.py
+│   │   ├── user_service.py
+│   │   ├── assessment_service.py
+│   │   └── conversation_service.py
+│   └── database.py         # DB connection (SQLite/PostgreSQL)
+│
+├── requirements.txt
+└── .env                     # Environment variables (API keys, DB URL)
