@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/health/health_questionnaire.dart';
-import 'widgets/health_news_ticker.dart';
-import 'widgets/chatbot_popup.dart';
 import 'models/user.dart';
 import 'providers/user_provider.dart';
+import 'widgets/health_news_ticker.dart';
+import 'widgets/chatbot_popup.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
   final String currentPageName;
 
-  const AppLayout({Key? key, required this.child, required this.currentPageName})
-      : super(key: key);
+  const AppLayout({
+    super.key,
+    required this.child,
+    required this.currentPageName,
+  });
 
   @override
-  _AppLayoutState createState() => _AppLayoutState();
+  State<AppLayout> createState() => _AppLayoutState();
 }
 
 class _AppLayoutState extends State<AppLayout> {
@@ -26,18 +28,21 @@ class _AppLayoutState extends State<AppLayout> {
     loadUser();
   }
 
+  // This function fetches the current user and updates provider.
   void loadUser() async {
     try {
-      final user = await User.me(); // Your API call to fetch user
+      final user = await User.me(); // Static async method from your User model
+      if (!mounted) return; // satisfies use_build_context_synchronously
       Provider.of<UserProvider>(context, listen: false).setUser(user);
     } catch (e) {
-      print("User not logged in");
+      debugPrint("User not logged in"); // satisfies avoid_print
     }
   }
 
   void handleLogout() async {
-    await User.logout(); // Your logout API call
-    Provider.of<UserProvider>(context, listen: false).clearUser();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.user?.logout();
+    userProvider.clearUser();
   }
 
   @override
@@ -57,21 +62,26 @@ class _AppLayoutState extends State<AppLayout> {
       drawer: Drawer(
         child: Column(
           children: [
-            DrawerHeader(
-              child: Text('MedIntel', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const DrawerHeader(
+              child: Text(
+                'MedIntel',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
             ),
-            ...navigationItems.map((item) => ListTile(
-                  leading: Icon(item['icon'] as IconData),
-                  title: Text(item['title'] as String),
-                  selected: widget.currentPageName == item['title'],
-                  onTap: () {
-                    Navigator.pushNamed(context, item['route'] as String);
-                  },
-                )),
+            ...navigationItems.map(
+              (item) => ListTile(
+                leading: Icon(item['icon'] as IconData),
+                title: Text(item['title'] as String),
+                selected: widget.currentPageName == item['title'],
+                onTap: () {
+                  Navigator.pushNamed(context, item['route'] as String);
+                },
+              ),
+            ),
             if (user != null)
               ListTile(
-                leading: Icon(Icons.logout, color: Colors.red),
-                title: Text('Logout', style: TextStyle(color: Colors.red)),
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text('Logout', style: TextStyle(color: Colors.red)),
                 onTap: handleLogout,
               ),
           ],
@@ -79,7 +89,7 @@ class _AppLayoutState extends State<AppLayout> {
       ),
       appBar: AppBar(
         title: Row(
-          children: [
+          children: const [
             Icon(Icons.favorite, color: Colors.white),
             SizedBox(width: 8),
             Text('MedIntel', style: TextStyle(fontSize: 20)),
@@ -93,8 +103,8 @@ class _AppLayoutState extends State<AppLayout> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(user.fullName ?? '', style: TextStyle(fontSize: 14)),
-                  Text(user.email ?? '', style: TextStyle(fontSize: 12)),
+                  Text(user.fullName, style: const TextStyle(fontSize: 14)),
+                  Text(user.email, style: const TextStyle(fontSize: 12)),
                 ],
               ),
             ),
@@ -103,8 +113,8 @@ class _AppLayoutState extends State<AppLayout> {
               onPressed: () async {
                 await User.loginWithRedirect();
               },
-              icon: Icon(Icons.shield, color: Colors.white),
-              label: Text('Login', style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.shield, color: Colors.white),
+              label: const Text('Login', style: TextStyle(color: Colors.white)),
             ),
         ],
       ),
@@ -113,13 +123,13 @@ class _AppLayoutState extends State<AppLayout> {
           widget.child,
           Align(
             alignment: Alignment.bottomCenter,
-            child: HealthNewsTicker(), // your news ticker widget
+            child: HealthNewsTicker(userId: user?.id),
           ),
-          if (user != null) ChatbotPopup(user: user), // chatbot popup
+          if (user != null) ChatbotPopup(user: user),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.menu),
+        child: const Icon(Icons.menu),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
     );

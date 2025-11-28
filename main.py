@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import users, assessments, conversations
+from app.routes import user, assessments, conversations
 
 app = FastAPI(title="MedIntel API", version="1.0.0")
 
@@ -14,7 +14,7 @@ app.add_middleware(
 )
 
 # Include API routers
-app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(user.router, prefix="/users", tags=["Users"])
 app.include_router(assessments.router, prefix="/assessments", tags=["Assessments"])
 app.include_router(conversations.router, prefix="/conversations", tags=["Conversations"])
 

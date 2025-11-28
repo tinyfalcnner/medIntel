@@ -5,7 +5,8 @@ import '../models/headline.dart';
 
 class LlmService {
   // Replace with your backend endpoint or LLM endpoint.
-  static const String _endpoint = 'https://api.your-backend.example.com/health-headlines';
+  static const String _endpoint =
+      'https://api.your-backend.example.com/health-headlines';
 
   /// Fetches health headlines. The endpoint should return a JSON object:
   /// { "headlines": [ { "headline": "...", "category":"...", "source":"..." }, ... ] }
@@ -17,9 +18,18 @@ class LlmService {
     });
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final jsonBody = json.decode(response.body);
+      final jsonBody = json.decode(response.body) as Map<String, dynamic>;
       final items = (jsonBody['headlines'] as List?) ?? [];
-      return items.map((e) => Headline.fromJson(e as Map<String, dynamic>)).toList();
+
+      // Since Headline has no fromJson, build it manually
+      return items.map((e) {
+        final map = e as Map<String, dynamic>;
+        return Headline(
+          headline: map['headline'] as String? ?? '',
+          category: map['category'] as String? ?? '',
+          source: map['source'] as String? ?? '',
+        );
+      }).toList();
     } else {
       throw Exception('Failed to load headlines: ${response.statusCode}');
     }

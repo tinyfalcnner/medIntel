@@ -133,6 +133,7 @@ class _HealthQuestionnaireState extends State<HealthQuestionnaire> {
     final questions = widget.topic['questions'] as List;
     final currentQ = questions[currentQuestion];
     final progress = (currentQuestion + 1) / questions.length;
+    final currentAnswer = answers[currentQ['id']];
 
     return Scaffold(
       appBar: AppBar(
@@ -165,15 +166,20 @@ class _HealthQuestionnaireState extends State<HealthQuestionnaire> {
                       ),
                       const SizedBox(height: 16),
                       if (currentQ['type'] == 'radio')
-                        ...List<Widget>.from(
-                          (currentQ['options'] as List).map(
-                            (option) => RadioListTile(
-                              title: Text(option),
-                              value: option,
-                              groupValue: answers[currentQ['id']],
-                              onChanged: (value) =>
-                                  handleAnswer(currentQ['id'], value),
-                            ),
+                        // New RadioGroup wrapper to avoid deprecated groupValue/onChanged
+                        RadioGroup<String>(
+                          groupValue: currentAnswer as String?,
+                          onChanged: (value) =>
+                              handleAnswer(currentQ['id'], value),
+                          child: Column(
+                            children: (currentQ['options'] as List)
+                                .map<Widget>(
+                                  (option) => RadioListTile<String>(
+                                    title: Text(option),
+                                    value: option,
+                                  ),
+                                )
+                                .toList(),
                           ),
                         ),
                       if (currentQ['type'] == 'number')
@@ -183,7 +189,9 @@ class _HealthQuestionnaireState extends State<HealthQuestionnaire> {
                             hintText: "Enter your answer",
                           ),
                           onChanged: (value) => handleAnswer(
-                              currentQ['id'], int.tryParse(value) ?? 0),
+                            currentQ['id'],
+                            int.tryParse(value) ?? 0,
+                          ),
                         ),
                     ],
                   ),
@@ -224,7 +232,9 @@ class _HealthQuestionnaireState extends State<HealthQuestionnaire> {
                               )
                             : const Icon(Icons.check_circle),
                         label: Text(
-                          isSubmitting ? 'Submitting...' : 'Complete Assessment',
+                          isSubmitting
+                              ? 'Submitting...'
+                              : 'Complete Assessment',
                         ),
                       ),
               ],
