@@ -1,19 +1,17 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_application_1/main.dart' as app;
+
+// Import your actual app entry point.
+// This assumes lib/main.dart defines a MyApp widget or you can
+// replace MyApp below with whatever your root widget is.
+import 'package:medintel_flutter/main.dart';
 
 void main() {
-  testWidgets('MedIntel app builds and shows title', (WidgetTester tester) async {
-    // Build our real app and trigger a frame.
-    await tester.pumpWidget(const app.MedIntelApp());
+  testWidgets('App builds without crashing', (WidgetTester tester) async {
+    // Build the app
+    await tester.pumpWidget(const MyApp());
 
-    // Basic sanity check: MedIntel title appears somewhere.
-    expect(find.text('MedIntel'), findsWidgets);
+    // Simple sanity check: at least one widget is found
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

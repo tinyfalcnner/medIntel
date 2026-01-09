@@ -1,33 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/user_provider.dart';
 import 'app_layout.dart';
+import 'widgets/home_dashboard.dart';
+import 'screens/login_screen.dart';
+import 'screens/exercise_diet_page.dart';
+import 'screens/health_topics_page.dart';
+import 'screens/user_profile_page.dart';
 
 void main() {
-  runApp(const MedIntelApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => UserProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MedIntelApp extends StatelessWidget {
-  const MedIntelApp({super.key}); // use_super_parameters fixed
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, WidgetBuilder> appRoutes = {
-      '/': (context) => const AppLayout(
-            currentPageName: 'Home',
-            child: Scaffold(
-              body: Center(child: Text('Home Page')),
-            ),
-          ),
-    };
-
     return MaterialApp(
       title: 'MedIntel',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: '/',
-      routes: appRoutes,
+      home: const LoginScreen(), // start at fake login
+      routes: {
+        '/home': (_) => const AppLayout(
+              currentPageName: 'Home',
+              child: HomeDashboard(),
+            ),
+        '/health_topics': (_) => const AppLayout(
+              currentPageName: 'Health Topics',
+              child: HealthTopicsPage(),
+            ),
+        '/user_profile': (_) => const AppLayout(
+              currentPageName: 'User Profile',
+              child: UserProfilePage(),
+            ),
+        '/exercise_diet': (_) => const AppLayout(
+              currentPageName: 'Exercise & Diet',
+              child: ExerciseDietPage(),
+            ),
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+// ignore: unused_import
 import 'models/user.dart';
 import 'providers/user_provider.dart';
 import 'widgets/health_news_ticker.dart';
@@ -25,24 +26,17 @@ class _AppLayoutState extends State<AppLayout> {
   @override
   void initState() {
     super.initState();
-    loadUser();
+    // No auto-load here; user is set from LoginScreen via UserProvider.
   }
 
-  // This function fetches the current user and updates provider.
-  void loadUser() async {
-    try {
-      final user = await User.me(); // Static async method from your User model
-      if (!mounted) return; // satisfies use_build_context_synchronously
-      Provider.of<UserProvider>(context, listen: false).setUser(user);
-    } catch (e) {
-      debugPrint("User not logged in"); // satisfies avoid_print
-    }
-  }
-
-  void handleLogout() async {
+  Future<void> handleLogout() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     await userProvider.user?.logout();
     userProvider.clearUser();
+
+    if (!mounted) return;
+    // Go back to login screen (home of MaterialApp).
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
 
   @override
@@ -81,7 +75,10 @@ class _AppLayoutState extends State<AppLayout> {
             if (user != null)
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text('Logout', style: TextStyle(color: Colors.red)),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
                 onTap: handleLogout,
               ),
           ],
@@ -110,11 +107,14 @@ class _AppLayoutState extends State<AppLayout> {
             ),
           if (user == null)
             TextButton.icon(
-              onPressed: () async {
-                await User.loginWithRedirect();
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
               },
-              icon: const Icon(Icons.shield, color: Colors.white),
-              label: const Text('Login', style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.login, color: Colors.white),
+              label: const Text(
+                'Login',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
         ],
       ),
@@ -127,10 +127,6 @@ class _AppLayoutState extends State<AppLayout> {
           ),
           if (user != null) ChatbotPopup(user: user),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.menu),
-        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
     );
   }

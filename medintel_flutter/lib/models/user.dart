@@ -2,31 +2,32 @@ class User {
   final String id;
   final String fullName;
   final String email;
+  final int age;
+  final String gender;
+  final double heightCm;
+  final double weightKg;
+  final String primaryGoal;
+  final String activityLevel;
+  final Map<String, dynamic> medicalHistory;
 
   User({
     required this.id,
     required this.fullName,
     required this.email,
+    required this.age,
+    required this.gender,
+    required this.heightCm,
+    required this.weightKg,
+    required this.primaryGoal,
+    required this.activityLevel,
+    required this.medicalHistory,
   });
 
-  // Simulate fetching current user asynchronously
-  static Future<User> me() async {
-    // Replace with actual fetch logic or API call
-    await Future.delayed(const Duration(milliseconds: 200));
-    return User(
-      id: 'u123',
-      fullName: 'Test User',
-      email: 'test@example.com',
-    );
-  }
-
   Future<void> logout() async {
-    // Add logout logic here, e.g., call API, clear tokens
-    await Future.delayed(const Duration(milliseconds: 200));
+    // Add real logout later if needed
   }
 
   static Future<void> loginWithRedirect() async {
-    // Add login logic here, e.g., navigate to login screen
-    await Future.delayed(const Duration(milliseconds: 200));
+    // Not used now; kept for future if you add real auth
   }
 }

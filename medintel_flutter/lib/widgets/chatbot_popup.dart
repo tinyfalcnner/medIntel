@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
 import '../models/user.dart';
 
 class ChatbotPopup extends StatefulWidget {
@@ -21,29 +17,116 @@ class _ChatbotPopupState extends State<ChatbotPopup> {
   final List<Map<String, String>> _messages = []; // {role: "user"/"bot", text: "..."}
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = false;
+  bool _sentIntro = false; // track if disclaimer + profile already sent
 
-  // Call chatbot API using User's id
   Future<String> _fetchBotResponse(String userMessage) async {
-    try {
-      final response = await http.post(
-        Uri.parse("https://your-api-endpoint.com/chat"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "user_id": widget.user.id, // uses User object's id property
-          "message": userMessage,
-        }),
-      );
+    final text = userMessage.toLowerCase().trim();
+    final userId = widget.user.id;
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        return data["response"] as String? ??
-            "I'm not sure, please try again.";
+    final intro = StringBuffer();
+    final advice = StringBuffer();
+
+    // Only send disclaimer + profile the first time
+    if (!_sentIntro) {
+      intro.writeln(
+        "Note: This chatbot gives general health education and lifestyle tips only. "
+        "It cannot diagnose or replace a consultation with a doctor.",
+      );
+      intro.writeln();
+
+      if (userId == "u1") {
+        intro.writeln(
+          "Profile: 28‑year‑old with mild asthma, focusing on better cardio fitness and stress control.",
+        );
+      } else if (userId == "u2") {
+        intro.writeln(
+          "Profile: 45‑year‑old with hypertension and prediabetes, focusing on weight and blood pressure control.",
+        );
+      } else if (userId == "u3") {
+        intro.writeln(
+          "Profile: 60‑year‑old with knee osteoarthritis and high cholesterol, focusing on joint comfort and energy.",
+        );
       } else {
-        return "Error: ${response.statusCode}";
+        intro.writeln("Profile: Adult user with general health goals.");
       }
-    } catch (e) {
-      return "Failed to connect to server.";
+      intro.writeln();
     }
+
+    // Weight / diet
+    if (text.contains("weight") || text.contains("diet") || text.contains("lose")) {
+      if (userId == "u2") {
+        advice.writeln(
+          "For your blood pressure and sugar, slow, steady weight loss is safest. "
+          "Use smaller portions of rice/bread, avoid sugary drinks, and try to fill half the plate with vegetables.",
+        );
+      } else {
+        advice.writeln(
+          "For healthy weight, keep regular meals, plenty of vegetables, and limit sweets and deep‑fried foods. "
+          "Avoid frequent late‑night snacks where possible.",
+        );
+      }
+      advice.writeln();
+    }
+
+    // Blood pressure
+    if (text.contains("bp") ||
+        text.contains("blood pressure") ||
+        text.contains("pressure")) {
+      advice.writeln(
+        "To support blood pressure, reduce added salt: cut down on packaged snacks, instant noodles, and very salty pickles. "
+        "Aim for 20–30 minutes of relaxed walking on most days if your doctor allows it.",
+      );
+      advice.writeln();
+    }
+
+    // Joint / knee pain
+    if (text.contains("knee") ||
+        text.contains("joint") ||
+        text.contains("arthritis") ||
+        text.contains("pain")) {
+      advice.writeln(
+        "For joint comfort, use low‑impact activities such as cycling, swimming, or flat walking. "
+        "Avoid running on hard ground, jumping, or long periods of standing if they worsen pain.",
+      );
+      advice.writeln();
+    }
+
+    // Breathing / asthma
+    if (text.contains("breath") ||
+        text.contains("breathing") ||
+        text.contains("asthma") ||
+        text.contains("wheeze")) {
+      advice.writeln(
+        "With breathing problems or asthma, warm up gently before exercise, keep your inhaler available if prescribed, "
+        "and avoid heavy exercise in very cold or polluted air. Sudden severe breathlessness is an emergency.",
+      );
+      advice.writeln();
+    }
+
+    // Stress / sleep / tiredness
+    if (text.contains("stress") ||
+        text.contains("anxious") ||
+        text.contains("anxiety") ||
+        text.contains("sleep") ||
+        text.contains("tired") ||
+        text.contains("fatigue")) {
+      advice.writeln(
+        "For stress and sleep, try a fixed sleep time, limit screens in the last 30 minutes before bed, "
+        "and add at least one short walk or stretching break in the day just for relaxation.",
+      );
+      advice.writeln();
+    }
+
+    // Generic advice if nothing matched
+    if (advice.isEmpty) {
+      advice.writeln(
+        "For general health, aim for some movement most days, more vegetables and whole foods, "
+        "and regular check‑ups with your doctor if you have ongoing conditions.",
+      );
+    }
+
+    _sentIntro = true;
+    return (intro.toString() + advice.toString()).trim();
   }
 
   void _sendMessage() async {
@@ -136,6 +219,7 @@ class _ChatbotPopupState extends State<ChatbotPopup> {
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 12),
                         ),
+                        onSubmitted: (_) => _sendMessage(),
                       ),
                     ),
                     IconButton(

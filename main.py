@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import user, assessments, conversations
+from website.routes import user, assessments, conversations
 
 app = FastAPI(title="MedIntel API", version="1.0.0")
 
